@@ -16,24 +16,20 @@ import java.util.List;
 public class TextServiceImplTest {
     private TextService textService;
     private TextComposite textComposite;
-    private TextComponent sentences;
-    private TextReader textReader;
-    private TextParser textParser;
-    private String filePath;
     private List<TextComponent> textComponents;
 
     @Before
     public void init() throws TextException {
+        TextReader textReader = new TextReader();
+        TextParser textParser = new ParagraphParser();
         textService = new TextServiceImpl();
-        textReader = new TextReader();
-        textParser = new ParagraphParser();
 
-        filePath = "testdata.txt";
+        String filePath = "testdata.txt";
         String text = textReader.readText(filePath);
         textComposite = textParser.parse(text);
 
         textComponents = textComposite.getChildren().stream()
-                .flatMap(p -> p.getChildren().stream())
+                .flatMap(paragraph -> paragraph.getChildren().stream())
                 .toList();
     }
 
