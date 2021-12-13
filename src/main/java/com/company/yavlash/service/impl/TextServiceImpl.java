@@ -25,20 +25,20 @@ public class TextServiceImpl implements TextService {
     public List<TextComponent> findSentencesWithLongestWord(TextComposite textComposite) {
         int maxLength = findLongestWordLength(textComposite);
         return textComposite.getChildren().stream()
-                .flatMap(p -> p.getChildren().stream())
-                .flatMap(s -> s.getChildren().stream())
-                .filter(l -> l.getChildren().stream()
-                        .anyMatch(w -> w.getType().equals(ComponentType.WORD) && w.toString().length() == maxLength))
+                .flatMap(paragraph -> paragraph.getChildren().stream())
+                .flatMap(sentence -> sentence.getChildren().stream())
+                .filter(lexeme -> lexeme.getChildren().stream()
+                        .anyMatch(word -> word.getType().equals(ComponentType.WORD) && word.toString().length() == maxLength))
                 .toList();
     }
 
     public int findLongestWordLength(TextComposite textComposite) {
         TextComponent textComponent = textComposite.getChildren().stream()
-                .flatMap(p -> p.getChildren().stream())
-                .flatMap(s -> s.getChildren().stream())
-                .flatMap(l -> l.getChildren().stream())
-                .filter(w -> w.getType().equals(ComponentType.WORD))
-                .max(Comparator.comparingInt(w -> w.toString().length()))
+                .flatMap(paragraph -> paragraph.getChildren().stream())
+                .flatMap(sentence -> sentence.getChildren().stream())
+                .flatMap(lexeme -> lexeme.getChildren().stream())
+                .filter(word -> word.getType().equals(ComponentType.WORD))
+                .max(Comparator.comparingInt(word -> word.toString().length()))
                 .get();
         return textComponent.toString().length();
     }
@@ -46,43 +46,43 @@ public class TextServiceImpl implements TextService {
     @Override
     public List<TextComponent> deleteSentences(TextComposite textComposite, int minWordAmount) {
         return textComposite.getChildren().stream()
-                .flatMap(p -> p.getChildren().stream())
-                .filter(s -> s.getChildren().stream()
-                        .flatMap(l -> l.getChildren().stream())
-                        .filter(w -> w.getType().equals(ComponentType.WORD)).count() >= minWordAmount).toList();
+                .flatMap(paragraph -> paragraph.getChildren().stream())
+                .filter(sentence -> sentence.getChildren().stream()
+                        .flatMap(lexeme -> lexeme.getChildren().stream())
+                        .filter(word -> word.getType().equals(ComponentType.WORD)).count() >= minWordAmount).toList();
     }
 
     @Override
     public Map<String, Long> countEqualWords(TextComposite textComposite) {
         Map<String, Long> similarWords = textComposite.getChildren().stream()
-                .flatMap(p -> p.getChildren().stream())
-                .flatMap(s -> s.getChildren().stream())
-                .flatMap(l -> l.getChildren().stream())
-                .filter(w -> w.getType().equals(ComponentType.WORD))
-                .collect(Collectors.groupingBy(w -> w.toString().toLowerCase(), Collectors.counting()));
-        similarWords.entrySet().removeIf(w -> w.getValue() == 1);
+                .flatMap(paragraph -> paragraph.getChildren().stream())
+                .flatMap(sentence -> sentence.getChildren().stream())
+                .flatMap(lexeme -> lexeme.getChildren().stream())
+                .filter(word -> word.getType().equals(ComponentType.WORD))
+                .collect(Collectors.groupingBy(word -> word.toString().toLowerCase(), Collectors.counting()));
+        similarWords.entrySet().removeIf(word -> word.getValue() == 1);
         return similarWords;
     }
 
     @Override
     public long countConsonants(TextComponent sentenceComponent) {
         return sentenceComponent.getChildren().stream()
-                .flatMap(l -> l.getChildren().stream())
-                .filter(w -> w.getType().equals(ComponentType.WORD))
-                .flatMap(w -> w.getChildren().stream())
-                .flatMap(l -> l.getChildren().stream())
-                .filter(l -> l.toString().matches(CONSONANTS))
+                .flatMap(lexeme -> lexeme.getChildren().stream())
+                .filter(word -> word.getType().equals(ComponentType.WORD))
+                .flatMap(word -> word.getChildren().stream())
+                .flatMap(letter -> letter.getChildren().stream())
+                .filter(letter -> letter.toString().matches(CONSONANTS))
                 .count();
     }
 
     @Override
     public long countVowels(TextComponent sentenceComponent) {
         return sentenceComponent.getChildren().stream()
-                .flatMap(l -> l.getChildren().stream())
-                .filter(w -> w.getType().equals(ComponentType.WORD))
-                .flatMap(w -> w.getChildren().stream())
-                .flatMap(l -> l.getChildren().stream())
-                .filter(l -> l.toString().matches(VOWELS))
+                .flatMap(lexeme -> lexeme.getChildren().stream())
+                .filter(word -> word.getType().equals(ComponentType.WORD))
+                .flatMap(word -> word.getChildren().stream())
+                .flatMap(letter -> letter.getChildren().stream())
+                .filter(letter -> letter.toString().matches(VOWELS))
                 .count();
     }
 }
